@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PR } from '@/lib/prs';
 import { PRCard } from './pr-card';
+import { EmptyState } from './empty-state';
 
 interface InfinitePRListProps {
   prs: PR[];
@@ -54,9 +55,15 @@ export function InfinitePRList({ prs, title, description }: InfinitePRListProps)
 
   if (prs.length === 0) {
     return (
-      <div className="mt-10 rounded-2xl border border-dashed border-border p-16 text-center text-muted">
-        No pull requests found.
-      </div>
+      <EmptyState
+        title="No pull requests found"
+        description="We couldn't find any pull requests. This might happen if the data source (github-ai-project) is not available or hasn't been synced yet. Try refreshing the page or contact support if the problem persists."
+        icon="📭"
+        action={{
+          label: "Go to Dashboard",
+          href: "/",
+        }}
+      />
     );
   }
 
