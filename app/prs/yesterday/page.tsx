@@ -1,6 +1,10 @@
 import { CalendarIcon } from "@/components/icons";
+import { InfinitePRList } from "@/components/infinite-pr-list";
+import { getYesterdayPRs } from "@/lib/prs";
 
 export default function YesterdayPRs() {
+  const prs = getYesterdayPRs();
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
       <div className="flex flex-col gap-3">
@@ -15,9 +19,7 @@ export default function YesterdayPRs() {
           Pull requests created or updated yesterday.
         </p>
       </div>
-      <div className="mt-10 rounded-2xl border border-dashed border-border p-16 text-center text-muted">
-        Coming soon.
-      </div>
+      <InfinitePRList prs={prs} title="Yesterday PRs" description="Pull requests created or updated yesterday." />
     </div>
   );
 }

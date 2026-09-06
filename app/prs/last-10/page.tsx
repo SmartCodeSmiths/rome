@@ -1,6 +1,10 @@
 import { HistoryIcon } from "@/components/icons";
+import { InfinitePRList } from "@/components/infinite-pr-list";
+import { getLast10PRs } from "@/lib/prs";
 
 export default function Last10PRs() {
+  const prs = getLast10PRs();
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
       <div className="flex flex-col gap-3">
@@ -15,9 +19,7 @@ export default function Last10PRs() {
           The ten most recent pull requests.
         </p>
       </div>
-      <div className="mt-10 rounded-2xl border border-dashed border-border p-16 text-center text-muted">
-        Coming soon.
-      </div>
+      <InfinitePRList prs={prs} title="Last 10 PRs" description="The ten most recent pull requests." />
     </div>
   );
 }

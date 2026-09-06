@@ -1,6 +1,10 @@
 import { GitBranchIcon } from "@/components/icons";
+import { InfinitePRList } from "@/components/infinite-pr-list";
+import { getAllPRs } from "@/lib/prs";
 
 export default function ListPRs() {
+  const prs = getAllPRs();
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
       <div className="flex flex-col gap-3">
@@ -15,9 +19,7 @@ export default function ListPRs() {
           All pull requests across your repositories.
         </p>
       </div>
-      <div className="mt-10 rounded-2xl border border-dashed border-border p-16 text-center text-muted">
-        Coming soon.
-      </div>
+      <InfinitePRList prs={prs} title="List PRs" description="All pull requests across your repositories." />
     </div>
   );
 }
