@@ -1,6 +1,10 @@
 import { GitBranchIcon } from "@/components/icons";
+import { PRCard } from "@/components/pr-card";
+import { getAllPRs } from "@/lib/prs";
 
 export default function ListPRs() {
+  const prs = getAllPRs();
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
       <div className="flex flex-col gap-3">
@@ -15,9 +19,22 @@ export default function ListPRs() {
           All pull requests across your repositories.
         </p>
       </div>
-      <div className="mt-10 rounded-2xl border border-dashed border-border p-16 text-center text-muted">
-        Coming soon.
-      </div>
+      {prs.length > 0 ? (
+        <div className="mt-10 grid gap-4">
+          <p className="text-sm text-muted">
+            Showing {prs.length} pull requests
+          </p>
+          <div className="grid gap-4">
+            {prs.map((pr) => (
+              <PRCard key={pr.id} pr={pr} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="mt-10 rounded-2xl border border-dashed border-border p-16 text-center text-muted">
+          No pull requests found.
+        </div>
+      )}
     </div>
   );
 }
