@@ -24,11 +24,24 @@ export interface PR {
 
 function getAllJsonFiles(): string[] {
   try {
+    if (!fs.existsSync(DATA_DIR)) {
+      console.warn(`⚠️  Data directory not found: ${DATA_DIR}`);
+      console.warn("Make sure github-ai-project is in the parent directory");
+      return [];
+    }
+
     const files = fs.readdirSync(DATA_DIR).filter((f) => f.endsWith(".json"));
+
+    if (files.length === 0) {
+      console.warn(`⚠️  No JSON files found in: ${DATA_DIR}`);
+      return [];
+    }
+
     files.sort().reverse();
+    console.log(`✓ Found ${files.length} PR data files`);
     return files.map((f) => path.join(DATA_DIR, f));
   } catch (error) {
-    console.error("Error reading data directory:", error);
+    console.error("❌ Error reading data directory:", error);
     return [];
   }
 }
@@ -53,9 +66,14 @@ function getYesterdayDate(): { start: Date; end: Date } {
 
 export function getAllPRs(): PR[] {
   const files = getAllJsonFiles();
-  if (files.length === 0) return [];
+  if (files.length === 0) {
+    console.warn("⚠️  No PR data available. Cannot connect to github-ai-project data source.");
+    return [];
+  }
 
   const allPRs: Map<number, PR> = new Map();
+  let successCount = 0;
+  let errorCount = 0;
 
   for (const file of files) {
     try {
@@ -67,16 +85,21 @@ export function getAllPRs(): PR[] {
           allPRs.set(pr.id, pr);
         }
       }
+      successCount++;
     } catch (error) {
-      console.error(`Error parsing JSON file ${file}:`, error);
+      errorCount++;
+      console.error(`❌ Error parsing JSON file ${file}:`, error);
     }
   }
 
-  return Array.from(allPRs.values()).sort((a, b) => {
+  const sortedPRs = Array.from(allPRs.values()).sort((a, b) => {
     const dateA = new Date(a.updated_at).getTime();
     const dateB = new Date(b.updated_at).getTime();
     return dateB - dateA;
   });
+
+  console.log(`✓ Loaded ${allPRs.size} unique PRs from ${successCount} files (${errorCount} errors)`);
+  return sortedPRs;
 }
 
 export function getLast10PRs(): PR[] {
