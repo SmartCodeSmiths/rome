@@ -22,17 +22,20 @@ export interface PR {
   body: string;
 }
 
-function getLatestJsonFile(): string | null {
+function getAllJsonFiles(): string[] {
   try {
     const files = fs.readdirSync(DATA_DIR).filter((f) => f.endsWith(".json"));
-    if (files.length === 0) return null;
-
     files.sort().reverse();
-    return path.join(DATA_DIR, files[0]);
+    return files.map((f) => path.join(DATA_DIR, f));
   } catch (error) {
     console.error("Error reading data directory:", error);
-    return null;
+    return [];
   }
+}
+
+function getLatestJsonFile(): string | null {
+  const files = getAllJsonFiles();
+  return files.length > 0 ? files[0] : null;
 }
 
 function getYesterdayDate(): { start: Date; end: Date } {
@@ -49,28 +52,36 @@ function getYesterdayDate(): { start: Date; end: Date } {
 }
 
 export function getAllPRs(): PR[] {
-  const file = getLatestJsonFile();
-  if (!file) return [];
+  const files = getAllJsonFiles();
+  if (files.length === 0) return [];
 
-  try {
-    const data = fs.readFileSync(file, "utf-8");
-    return JSON.parse(data) as PR[];
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    return [];
+  const allPRs: Map<number, PR> = new Map();
+
+  for (const file of files) {
+    try {
+      const data = fs.readFileSync(file, "utf-8");
+      const prs = JSON.parse(data) as PR[];
+
+      for (const pr of prs) {
+        if (!allPRs.has(pr.id)) {
+          allPRs.set(pr.id, pr);
+        }
+      }
+    } catch (error) {
+      console.error(`Error parsing JSON file ${file}:`, error);
+    }
   }
+
+  return Array.from(allPRs.values()).sort((a, b) => {
+    const dateA = new Date(a.updated_at).getTime();
+    const dateB = new Date(b.updated_at).getTime();
+    return dateB - dateA;
+  });
 }
 
 export function getLast10PRs(): PR[] {
   const prs = getAllPRs();
-
-  return prs
-    .sort((a, b) => {
-      const dateA = new Date(a.updated_at).getTime();
-      const dateB = new Date(b.updated_at).getTime();
-      return dateB - dateA;
-    })
-    .slice(0, 10);
+  return prs.slice(0, 10);
 }
 
 export function getYesterdayPRs(): PR[] {
