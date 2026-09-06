@@ -1,5 +1,5 @@
 import { GitBranchIcon } from "@/components/icons";
-import { PRCard } from "@/components/pr-card";
+import { InfinitePRList } from "@/components/infinite-pr-list";
 import { getAllPRs } from "@/lib/prs";
 
 export default function ListPRs() {
@@ -19,22 +19,7 @@ export default function ListPRs() {
           All pull requests across your repositories.
         </p>
       </div>
-      {prs.length > 0 ? (
-        <div className="mt-10 grid gap-4">
-          <p className="text-sm text-muted">
-            Showing {prs.length} pull requests
-          </p>
-          <div className="grid gap-4">
-            {prs.map((pr) => (
-              <PRCard key={pr.id} pr={pr} />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="mt-10 rounded-2xl border border-dashed border-border p-16 text-center text-muted">
-          No pull requests found.
-        </div>
-      )}
+      <InfinitePRList prs={prs} title="List PRs" description="All pull requests across your repositories." />
     </div>
   );
 }
