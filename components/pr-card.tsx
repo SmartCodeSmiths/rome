@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ExternalLinkIcon } from "@/components/icons";
 import { PR } from "@/lib/prs";
 
@@ -17,9 +18,11 @@ export function PRCard({ pr }: PRCardProps) {
       className="group block rounded-lg border border-border bg-card p-6 transition-colors hover:bg-accent hover:border-accent"
     >
       <div className="flex items-start gap-4">
-        <img
+        <Image
           src={pr.user.avatar_url}
           alt={pr.user.login}
+          width={40}
+          height={40}
           className="h-10 w-10 rounded-full"
         />
         <div className="flex-1 min-w-0">
