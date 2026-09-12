@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PR } from '@/lib/prs';
 import { PRCard } from './pr-card';
 import { EmptyState } from './empty-state';
@@ -13,16 +13,22 @@ interface InfinitePRListProps {
 
 const ITEMS_PER_PAGE = 20;
 
-export function InfinitePRList({ prs, title, description }: InfinitePRListProps) {
-  const [displayedPRs, setDisplayedPRs] = useState<PR[]>(prs.slice(0, ITEMS_PER_PAGE));
-  const [hasMore, setHasMore] = useState(prs.length > ITEMS_PER_PAGE);
+export function InfinitePRList({ prs }: InfinitePRListProps) {
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [isLoading, setIsLoading] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setDisplayedPRs(prs.slice(0, ITEMS_PER_PAGE));
-    setHasMore(prs.length > ITEMS_PER_PAGE);
-  }, [prs]);
+  const displayedPRs = prs.slice(0, visibleCount);
+  const hasMore = visibleCount < prs.length;
+
+  const loadMore = useCallback(() => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setTimeout(() => {
+      setVisibleCount((count) => count + ITEMS_PER_PAGE);
+      setIsLoading(false);
+    }, 300);
+  }, [isLoading]);
 
   useEffect(() => {
     if (!observerTarget.current || !hasMore) return;
@@ -41,23 +47,13 @@ export function InfinitePRList({ prs, title, description }: InfinitePRListProps)
     return () => {
       observer.disconnect();
     };
-  }, [hasMore, isLoading]);
-
-  const loadMore = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const nextIndex = displayedPRs.length + ITEMS_PER_PAGE;
-      setDisplayedPRs(prs.slice(0, nextIndex));
-      setHasMore(nextIndex < prs.length);
-      setIsLoading(false);
-    }, 300);
-  };
+  }, [hasMore, isLoading, loadMore]);
 
   if (prs.length === 0) {
     return (
       <EmptyState
         title="No pull requests found"
-        description="We couldn't find any pull requests. This might happen if the data source (github-ai-project) is not available or hasn't been synced yet. Try refreshing the page or contact support if the problem persists."
+        description="We couldn't find any pull requests. This might happen if the data directory doesn't contain any JSON files yet. Add PR data to the data/ directory and rebuild, or contact support if the problem persists."
         icon="📭"
         action={{
           label: "Go to Dashboard",
